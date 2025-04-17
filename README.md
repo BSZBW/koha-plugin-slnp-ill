@@ -167,7 +167,7 @@ and thus have the plugin available on the UI, is to install it manually (in prod
 this will be triggered automatically when you upload the _.kpz_ file):
 
 ```shell
-$ kshell
+$ ktd --name slnp --shell
 $ misc/devel/install_plugins.pl
 Installed SLNP ILL connector plugin for Koha version {VERSION}
 All plugins successfully re-initialised
