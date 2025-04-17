@@ -33,14 +33,6 @@ management page.
 
 Download this plugin from the [Releases page](https://github.com/BSZBW/koha-plugin-slnp-ill/releases) page.
 
-
-```xml
-<backend_directory>/var/lib/koha/<instance>/Koha/Illbackends</backend_directory>
-```
-
-* Activate the Koha ILL framwork and ILL backends by enabling the 'ILLModule' system preference.
-* Check the <interlibrary_loans> division in your koha-conf.xml.
-
 ## Configuration
 
 The plugin configuration is an HTML text area in which a _YAML_ structure is pasted. The available options
@@ -165,17 +157,9 @@ For developing the plugin, you need to have the plugins available in your [KTD](
 
 ```shell
 export SYNC_REPO=/path/to/git/koha
-export PLUGIN_REPO=/path/to/koha-plugin-slnp-ill
+export PLUGINS_DIR=/path/to/your/git/koha-plugins
 export LOCAL_USER_ID=$(id -u)
-kup
-```
-
-Then, point your _koha-conf.xml_ file to the *koha_plugin* directory:
-
-```xml
-<pluginsdir>/kohadevbox/koha_plugin</pluginsdir>
- ...
-<backend_directory>/kohadevbox/koha_plugin/Koha/Illbackends</backend_directory>
+ktd --proxy --name slnp --plugins up -d
 ```
 
 As this with any other plugin development, the only way to trigger the install method
@@ -199,4 +183,4 @@ Sisis Informationssysteme GmbH / OCLC owns all rights to SLNP. SLNP is a registe
 
 ## Credits
 
-This plugin is based on the original work from [LMSCLoud GmbH](https://github.com/LMSCloud/ILLSLNPKoha).
+This plugin is based on the original ILL backend from [LMSCLoud GmbH](https://github.com/LMSCloud/ILLSLNPKoha).
