@@ -4,18 +4,35 @@
 
 This project involves three different pieces:
 
-* A Koha plugin, that bundles the ILL backend and provides convenient ways to add configurations.
-  _FIXME_: This should mention the upcoming `install` and `upgrade` tools.
-* The **SLNP** ILL backend that provides provides a simple method to handle ILL requests that
+* The SLNP Koha plugin, that implements convenient ways to handle the SLNP ILL configuration. Some
+  helper APIs and hooks that aid process automation.
+* A Koha ILL backend for **SLNP**, defining the workflows for ILL handling after the ILL requests
   are initiated by a regional ILL server using the SLNP protocol through a ZFL server.
-* A server speaking the _SLNP_ protocol, that can run as a daemon.
+* An _SLNP_ server, that can run as a daemon.
 
 The remaining features of this ILL backend are accessible via the standard ILL framework in the Koha staff interface.
 
 ## Installing
 
-* Download this plugin from the [Deployments > Releases](https://gitlab.com/thekesolutions/plugins/slnp/koha-plugin-slnp-ill/-/releases) page.
-* Point your `<backend_directory>` entry to your instance's plugin directory like this
+### Search and install
+
+Add the following snippet in the `<plugin_repos>` section of your `koha-conf.xml` file:
+
+```xml
+<repo>
+    <name>BSZ</name>
+    <org_name>BSZBW</org_name>
+    <service>github</service>
+</repo>
+```
+
+After restarting your services (including `memcached`) you will be able to search for _slnp_ on the plugins
+management page.
+
+### Manual install
+
+Download this plugin from the [Releases page](https://github.com/BSZBW/koha-plugin-slnp-ill/releases) page.
+
 
 ```xml
 <backend_directory>/var/lib/koha/<instance>/Koha/Illbackends</backend_directory>
