@@ -1,6 +1,6 @@
 {
   "name": "koha-plugin-slnp-ill",
-  "version": "2.2.11",
+  "version": "2.2.12",
   "description": "SLNP ILL connector plugin for Koha",
   "devDependencies": {
     "gulp": "^4.0.2",
