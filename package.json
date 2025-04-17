@@ -1,7 +1,6 @@
 {
   "name": "koha-plugin-slnp-ill",
   "version": "2.2.11",
-  "previous_version": "0.0.0",
   "description": "SLNP ILL connector plugin for Koha",
   "devDependencies": {
     "gulp": "^4.0.2",
@@ -9,20 +8,21 @@
     "gulp-run": "^1.7.1"
   },
   "scripts": {
+    "preversion": "sed -i -e \"s/^our \\$VERSION = .*/our \\$VERSION = \\\"$npm_new_version\\\";/\" Koha/Plugin/Com/Theke/SLNP.pm; git add -u; rm Koha/Plugin/Com/Theke/SLNP.pm-e",
     "test": "echo \"Error: no test specified\" && exit 1",
     "kpz": "echo -n ${npm_package_name}-v${npm_package_version}.kpz",
     "name": "echo -n ${npm_package_name}"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/thekesolutions/plugins/koha-plugin-slnp-ill.git"
+    "url": "https://github.com/BSZBW/koha-plugin-slnp-ill.git"
   },
   "author": "Tomás Cohen Arazi <tomascohen@theke.io>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://gitlab.com/thekesolutions/plugins/koha-plugin-slnp-ill/issues"
+    "url": "https://github.com/BSZBW/koha-plugin-slnp-ill/issues"
   },
-  "homepage": "https://gitlab.com/thekesolutions/plugins/koha-plugin-slnp-ill#readme",
+  "homepage": "https://github.com/BSZBW/koha-plugin-slnp-ill#readme",
   "dependencies": {
     "datetime": "0.0.3",
     "jsonfile": "^5.0.0",

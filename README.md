@@ -4,25 +4,34 @@
 
 This project involves three different pieces:
 
-* A Koha plugin, that bundles the ILL backend and provides convenient ways to add configurations.
-  _FIXME_: This should mention the upcoming `install` and `upgrade` tools.
-* The **SLNP** ILL backend that provides provides a simple method to handle ILL requests that
+* The SLNP Koha plugin, that implements convenient ways to handle the SLNP ILL configuration. Some
+  helper APIs and hooks that aid process automation.
+* A Koha ILL backend for **SLNP**, defining the workflows for ILL handling after the ILL requests
   are initiated by a regional ILL server using the SLNP protocol through a ZFL server.
-* A server speaking the _SLNP_ protocol, that can run as a daemon.
+* An _SLNP_ server, that can run as a daemon.
 
 The remaining features of this ILL backend are accessible via the standard ILL framework in the Koha staff interface.
 
 ## Installing
 
-* Download this plugin from the [Deployments > Releases](https://gitlab.com/thekesolutions/plugins/slnp/koha-plugin-slnp-ill/-/releases) page.
-* Point your `<backend_directory>` entry to your instance's plugin directory like this
+### Search and install
+
+Add the following snippet in the `<plugin_repos>` section of your `koha-conf.xml` file:
 
 ```xml
-<backend_directory>/var/lib/koha/<instance>/Koha/Illbackends</backend_directory>
+<repo>
+    <name>BSZ</name>
+    <org_name>BSZBW</org_name>
+    <service>github</service>
+</repo>
 ```
 
-* Activate the Koha ILL framwork and ILL backends by enabling the 'ILLModule' system preference.
-* Check the <interlibrary_loans> division in your koha-conf.xml.
+After restarting your services (including `memcached`) you will be able to search for _slnp_ on the plugins
+management page.
+
+### Manual install
+
+Download this plugin from the [Releases page](https://github.com/BSZBW/koha-plugin-slnp-ill/releases) page.
 
 ## Configuration
 
@@ -122,8 +131,8 @@ The plugin introduces an API endpoint for generating the print notices.
 
 Notice templates are handed the following attributes, depending on the context:
 
-* illrequestattributes: a `Koha::Illrequestattributes` iterator for `Koha::Illrequest` objects.
-* illrequest: The `Koha::Illrequest` object.
+* illrequestattributes: a `Koha::ILL::Request::Attributes` iterator for `Koha::ILL::Request` objects.
+* illrequest: The `Koha::ILL::Request` object.
 * ill_bib_title: The generated record title field.
 * ill_bib_author: The generated record author field.
 * item: The linked `Koha::Item` object.
@@ -148,17 +157,9 @@ For developing the plugin, you need to have the plugins available in your [KTD](
 
 ```shell
 export SYNC_REPO=/path/to/git/koha
-export PLUGIN_REPO=/path/to/koha-plugin-slnp-ill
+export PLUGINS_DIR=/path/to/your/git/koha-plugins
 export LOCAL_USER_ID=$(id -u)
-kup
-```
-
-Then, point your _koha-conf.xml_ file to the *koha_plugin* directory:
-
-```xml
-<pluginsdir>/kohadevbox/koha_plugin</pluginsdir>
- ...
-<backend_directory>/kohadevbox/koha_plugin/Koha/Illbackends</backend_directory>
+ktd --proxy --name slnp --plugins up -d
 ```
 
 As this with any other plugin development, the only way to trigger the install method
@@ -166,7 +167,7 @@ and thus have the plugin available on the UI, is to install it manually (in prod
 this will be triggered automatically when you upload the _.kpz_ file):
 
 ```shell
-$ kshell
+$ ktd --name slnp --shell
 $ misc/devel/install_plugins.pl
 Installed SLNP ILL connector plugin for Koha version {VERSION}
 All plugins successfully re-initialised
@@ -182,4 +183,4 @@ Sisis Informationssysteme GmbH / OCLC owns all rights to SLNP. SLNP is a registe
 
 ## Credits
 
-This plugin is based on the original work from [LMSCLoud GmbH](https://github.com/LMSCloud/ILLSLNPKoha).
+This plugin is based on the original ILL backend from [LMSCLoud GmbH](https://github.com/LMSCloud/ILLSLNPKoha).
