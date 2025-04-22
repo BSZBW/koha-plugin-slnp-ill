@@ -336,12 +336,14 @@ sub metadata {
     my ( $self, $request ) = @_;
 
     my %map = (
-        'Article_author' => 'article_author',    # used alternatively to 'Author'
-        'Article_title'  => 'article_title',     # used alternatively to 'Title'
-        'Author'         => 'author',
-        'ISBN'           => 'isbn',
-        'Order ID'       => 'zflorderid',
-        'Title'          => 'title',
+        'Article_author'  => 'article_author',  # used alternatively to 'Author'
+        'Article_title'   => 'article_title',   # used alternatively to 'Title'
+        'Author'          => 'author',
+        'ISBN'            => 'isbn',
+        'Order ID'        => 'zflorderid',
+        'Title'           => 'title',
+        'Lending_library' => 'lending_library',
+        'Sigel_lending_library' => 'sigel_lending_library',
     );
 
     my %attr;
@@ -362,8 +364,31 @@ sub metadata {
         delete $attr{Article_title};
     }
 
+    # lending library is the borrowernumber
+    if ( $attr{Lending_library} && length( $attr{Lending_library} ) ) {
+        my $lending_library = Koha::Patrons->find( $attr{Lending_library} );
+        if ($lending_library) {
+            $attr{Lending_library} =
+                $lending_library->surname . " "
+              . $lending_library->firstname
+              . (
+                $lending_library->othernames
+                ? " (" . $lending_library->othernames . ")"
+                : ""
+              );
+        }
+    }
+    elsif ( $attr{Sigel_lending_library} ) {
+        # Sigel_lending_library is the original value from SLNP
+        # show unless lending_library is set
+        $attr{Lending_library} = $attr{Sigel_lending_library};
+    }
+
+    delete( $attr{Sigel_lending_library} ) if ( $attr{Sigel_lending_library} );
+
     return \%attr;
 }
+
 
 =head3 create
 
@@ -546,6 +571,50 @@ sub receive {
 
         $self->{logger}->error("No patrons defined as lending libraries (categorycode=$partner_category_code)")
             unless $lending_libraries->count > 0;
+
+        # search in attributes for lending_library
+        # it is usually given as ISIL like 'DE-123' or like Sigel '714'
+        my $selected_lending_library_isil = $request->extended_attributes->search({ type => 'sigel_lending_library' })->next;
+
+        if ($selected_lending_library_isil) {
+
+            # if ISIL/Sigel is wrapped <...>
+            my $search_prefix =
+              $self->{configuration}->{lending_library}->{search_prefix} // "";
+            my $search_suffix =
+              $self->{configuration}->{lending_library}->{search_suffix} // "";
+
+            # patron db column in which the ISIL/Sigel is saved
+            my $ill_library_id_column =
+              $self->{configuration}->{lending_library}->{ill_library_id}
+              // "othernames";
+
+            if (
+                grep( /^$ill_library_id_column$/,
+                    ( 'surname', 'firstname', 'middle_name', 'othernames' ) )
+              )
+            {
+                my $patron_query = "%". $search_prefix. $selected_lending_library_isil->value. $search_suffix . "%";
+
+                my $selected_lending_library = Koha::Patrons->search( { $ill_library_id_column => { "like" => $patron_query }, categorycode => $partner_category_code })->single;
+
+                if ($selected_lending_library) {
+                    $template_params->{selected_lending_library_id} =
+                      $selected_lending_library->borrowernumber;
+                }
+            }
+
+        }
+
+
+        # callnumber
+        my $callnumber =
+          $request->extended_attributes->search( { type => 'shelfmark' } )
+          ->next;
+        if ($callnumber) {
+            $template_params->{callnumber} = $callnumber->value;
+        }
+        
 
         $template_params->{received_on_date}  = dt_from_string;
         $template_params->{lending_libraries} = $lending_libraries;
