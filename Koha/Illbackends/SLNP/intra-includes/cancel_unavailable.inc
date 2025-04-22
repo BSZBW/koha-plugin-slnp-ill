@@ -2,8 +2,6 @@
 [% USE AuthorisedValues %]
 [% SET footerjs = 1 %]
 
-
-
 [% IF whole.error %]
     [% IF whole.message %]
     <div class="dialog message">[% whole.strings.error | html %]: [%- whole.message | html -%].</div>
@@ -56,6 +54,7 @@
                 <input name="backend" id="backend" value="SLNP" type="hidden" />
                 <input name="method" id="method" value="cancel_unavailable" type="hidden" />
                 <input name="stage" id="stage" value="commit" type="hidden" />
+                <input type="hidden" name="op" id="op" value="cud-cancel-unavailable" />
             </fieldset>
 
             <fieldset class="action">

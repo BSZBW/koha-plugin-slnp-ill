@@ -17,7 +17,7 @@
 [% END %]
 
 [% IF whole.stage == 'init' %]
-  <h2> [% whole.strings.update_request | html %] ([% request.orderid %])</h2>
+  <h2> [% whole.strings.update_request | html %] ([% request.orderid | html %])</h2>
 
   <form id="SLNP_delivery" name="SLNP_delivery" method="POST" action=[% here %]>
 
@@ -153,11 +153,12 @@
     </fieldset>
 
     <fieldset class="action">
-      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id %]" />
-      <input type="hidden" name="backend" id="backend" value="[% request.backend %]" />
+      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id | html %]" />
+      <input type="hidden" name="backend" id="backend" value="[% request.backend | html %]" />
       <input type="hidden" name="method" id="method" value="update" />
       <input type="hidden" name="stage" id="stage" value="commit" />
-      <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber %]" />
+      <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber | html%]" />
+      <input type="hidden" name="op" id="op" value="cud-update" />
 
       <button type="submit" class="btn btn-default approve">
         <i class="fa fa-check"></i> [% whole.strings.update | html %]

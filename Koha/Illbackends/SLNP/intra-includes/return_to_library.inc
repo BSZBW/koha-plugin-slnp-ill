@@ -14,7 +14,7 @@
   [% END %]
 [%# END %]
 
-  <h2>[% whole.strings.return_to_library | html %] ([% request.orderid %])</h2>
+  <h2>[% whole.strings.return_to_library | html %] ([% request.orderid | html %])</h2>
 
   <form id="SLNP_return_to_library" name="SLNP_return_to_library" method="POST" action=[% here %]>
 
@@ -58,7 +58,7 @@
         <li>
           <label for="the_patron">[% whole.strings.patron_requester | html %]:</label>
           <div name="the_patron" id="the_patron">
-            <a target="_blank" href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% whole.value.patron.borrowernumber %]">
+            <a target="_blank" href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% whole.value.patron.borrowernumber | uri %]">
             [% whole.value.patron.firstname | html %] [% whole.value.patron.surname | html %] ([% whole.value.patron.cardnumber | html %])</a>
           </div>
         </li>
@@ -66,10 +66,11 @@
     </fieldset>
 
     <fieldset class="action">
-      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id %]" />
-      <input type="hidden" name="backend" id="backend" value="[% request.backend %]" />
+      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id | html %]" />
+      <input type="hidden" name="backend" id="backend" value="[% request.backend | html %]" />
       <input type="hidden" name="method" id="method" value="return_to_library" />
       <input type="hidden" name="stage" id="stage" value="commit" />
+      <input type="hidden" name="op" id="op" value="cud-return-to-library" />
 
       <button type="submit" class="btn btn-default approve">
         <i class="fa fa-check"></i> [% whole.strings.save | html %]

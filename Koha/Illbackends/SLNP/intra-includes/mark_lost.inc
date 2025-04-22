@@ -14,11 +14,12 @@
     <form id="SLNP_mark_lost" name="SLNP_mark_lost" method="POST" action=[% here %]>
 
         <fieldset class="action">
-            <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id %]" />
-            <input type="hidden" name="backend" id="backend" value="[% request.backend %]" />
+            <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id | html %]" />
+            <input type="hidden" name="backend" id="backend" value="[% request.backend | html %]" />
             <input type="hidden" name="method" id="method" value="mark_lost" />
             <input type="hidden" name="stage" id="stage" value="commit" />
-            <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber %]" />
+            <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber | html %]" />
+            <input type="hidden" name="op" id="op" value="cud-mark-lost" />
 
             <a class="cancel" id="cancelbutton" name="cancelbutton" href="/cgi-bin/koha/ill/ill-requests.pl?method=illview&amp;illrequest_id=[% request.illrequest_id | uri %]">[% whole.strings.cancel | html %]</a>
         </fieldset>
@@ -26,7 +27,7 @@
 [% ELSE %]
 
 [% IF whole.stage == 'init' %]
-  <h2>[% whole.strings.title | html %] ([% request.orderid %])</h2>
+  <h2>[% whole.strings.title | html %] ([% request.orderid | html %])</h2>
 
   <p>[% whole.strings.message | html %]</p>
 
@@ -65,7 +66,7 @@
         <li>
           <label for="the_patron">[% whole.strings.patron_requester | html %]:</label>
           <div name="the_patron" id="the_patron">
-            <a target="_blank" href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% whole.value.patron.borrowernumber %]">
+            <a target="_blank" href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% whole.value.patron.borrowernumber | uri %]">
             [% whole.value.patron.firstname | html %] [% whole.value.patron.surname | html %] ([% whole.value.patron.cardnumber | html %])</a>
           </div>
         </li>
@@ -107,11 +108,12 @@
     </fieldset>
 
     <fieldset class="action">
-      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id %]" />
-      <input type="hidden" name="backend" id="backend" value="[% request.backend %]" />
+      <input type="hidden" name="illrequest_id" id="illrequest_id" value="[% whole.illrequest_id | html %]" />
+      <input type="hidden" name="backend" id="backend" value="[% request.backend | html %]" />
       <input type="hidden" name="method" id="method" value="mark_lost" />
       <input type="hidden" name="stage" id="stage" value="commit" />
-      <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber %]" />
+      <input type="hidden" name="itemnumber" id="itemnumber" value="[% whole.value.other.itemnumber | html %]" />
+      <input type="hidden" name="op" id="op" value="cud-mark-lost" />
 
       <button type="submit" class="btn btn-default approve">
         <i class="fa fa-check"></i> [% whole.strings.mark_lost | html %]
