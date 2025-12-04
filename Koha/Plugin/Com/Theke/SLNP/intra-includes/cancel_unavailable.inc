@@ -2,8 +2,6 @@
 [% USE AuthorisedValues %]
 [% SET footerjs = 1 %]
 
-
-
 [% IF whole.error %]
     [% IF whole.message %]
     <div class="dialog message">[% whole.strings.error | html %]: [%- whole.message | html -%].</div>

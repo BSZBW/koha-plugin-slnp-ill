@@ -33,6 +33,14 @@ management page.
 
 Download this plugin from the [Releases page](https://github.com/BSZBW/koha-plugin-slnp-ill/releases) page.
 
+## Updating
+
+In order to upgrade, the install steps should be followed. The plugin includes an upgrade routine that
+takes care of anything that is needed.
+
+**IMPORTANT:** If you are upgrading from version _3.0.3_ or older, you will need to manually remove
+the `plugins/Koha/Illbackends/SLNP` directory from your instance's home directory.
+
 ## Configuration
 
 The plugin configuration is an HTML text area in which a _YAML_ structure is pasted. The available options
