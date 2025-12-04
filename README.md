@@ -88,6 +88,11 @@ lending:
   control_borrowernumber: 123
   accepts_hold_requests: true
 not_for_loan_after_auto_checkin: 1
+lending_library:
+  search_prefix: "<"
+  search_suffix: ">"
+  # where the sigel of the library is stored : surname || firstname || middle_name || othernames
+  ill_library_id: "surname"
 ```
 
 ### not_for_loan_after_auto_checkin
