@@ -1018,6 +1018,8 @@ sub cmdPFLDatenAenderung {
 sub cmdFLBestellung {
     my ( $self, $slnpcmd ) = @_;
 
+    my $configuration = Koha::Plugin::Com::Theke::SLNP->new->configuration;
+
     $self->log(
         3,
         getTime() . "[SLNP::Server][Bestellung] " . $slnpcmd->{'cmd_name'} . ":"
@@ -1063,6 +1065,43 @@ sub cmdFLBestellung {
     $self->log( 3, getTime() . " [SLNP::Server] > params:" . Dumper($params) );
 
     $res = SLNP::Commands::Bestellung::SLNPFLBestellung( $slnpcmd, $params );
+
+    # mail staff
+    if (   $res->{'req_valid'}
+        && $params->{'BsTyp'} eq 'AFL'
+        && $configuration->{accepted_afl_notice}
+        && C4::Context->preference('ILLDefaultStaffEmail') )
+    {
+
+        my $email     = C4::Context->preference('ILLDefaultStaffEmail');
+        my $pflnummer = $res->{rsp_para}->[0]->{resp_pval};
+
+        my %substitute =
+            ( pflnummer => $pflnummer, bestellid => $params->{BestellId}, portal => $configuration->{'portal_url'} );
+
+        my $letter = C4::Letters::GetPreparedLetter(
+            module                 => 'ill',
+            letter_code            => 'AFL_ORDER_CREATED',
+            message_transport_type => 'email',
+            substitute             => \%substitute,
+        );
+
+        if ($letter) {
+            C4::Letters::EnqueueLetter(
+                {
+                    letter                 => $letter,
+                    message_transport_type => 'email',
+                    to_address             => $email
+                }
+            );
+
+            $self->log(
+                3,
+                getTime() . "[SLNP::Server][Bestellung] AFL notification sent to " . $email . ":"
+            );
+        }
+
+    }
 
     $self->log(
         3,
