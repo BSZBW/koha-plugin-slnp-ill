@@ -41,6 +41,7 @@ use DateTime;
 
 # each real SLNP command is handled in an individual perl module
 use SLNP::Commands::Bestellung;
+use SLNP::Commands::DatenAenderung;
 
 use SLNP::Normalizer qw();
 
@@ -114,6 +115,15 @@ my $SlnpErr2HttpCode = {
         code => 510,
         text => undef,
     },
+    SLNP_PFL_NOT_EXISTING => {
+        'code' => 510,
+        'text' => 'PFLNummerNichtVorhanden'
+    },
+    SLNP_PFL_NOT_PLAUSIBLE => {
+        'code' => 510,
+        'text' => 'PFLNummerNichtPlausibel'
+    },
+
 };
 
 my $SLNPCmds = {
@@ -413,6 +423,28 @@ my $SLNPCmds = {
     'SLNPQuit' => {
 
         # special command managed internally
+    },
+        'SLNPPFLDatenAenderung' => {
+        'slnpparams' => {
+
+            # <call number>
+            'Signatur' => {
+                'level' => 1,
+                'regex' => '^\s*(.+)$',
+            },
+            # <org code giving library >
+            'SigelGB' => {
+                'level' => 1,
+                'regex' => '^\s*(.+)$',
+            },
+            # koha ill request id
+            'PFLNummer' => {
+                'level' => 1,
+                'regex' => '^\s*(.+)\s*$',
+                'mand'  => 1,
+            },  
+        },
+        'execute' => 'cmdPFLDatenAenderung',
     },
 };
 
@@ -943,8 +975,50 @@ sub readSLNPParam {
     return $reqParamVals;
 }
 
+sub cmdPFLDatenAenderung {
+# fix
+  my ( $self, $slnpcmd ) = @_;
+
+    $self->log(
+        3,
+        getTime() . "[SLNP::Server][DatenAenderung] " . $slnpcmd->{'cmd_name'} . ":"
+    );
+
+    my ( $cmd, $res, $conn, $request ) = undef;
+
+    my $params = undef;
+    my @fields = (
+        'PFLNummer',
+        'SigelGB',
+        'Signatur',
+    );
+
+    foreach my $field (@fields) {
+        my $param = $self->readSLNPParam( $slnpcmd, 1, $field );
+        $params->{$field} = $param->[0]->[0] if $param;
+    }
+
+    $self->log( 3, getTime() . " [SLNP::Server] > params:" . Dumper($params) );
+
+    $res = SLNP::Commands::DatenAenderung::SLNPPFLDatenAenderung( $slnpcmd, $params );
+
+    $self->log(
+        3,
+        getTime()
+            . " [SLNP::Server] SLNPFLBestellung has returned, res->{'cmd_name'}:"
+            . $res->{'cmd_name'}
+            . ":, res->{'req_valid'}:"
+            . $res->{'req_valid'}
+    );
+
+    return $slnpcmd;
+}
+
+
 sub cmdFLBestellung {
     my ( $self, $slnpcmd ) = @_;
+
+    my $configuration = Koha::Plugin::Com::Theke::SLNP->new->configuration;
 
     $self->log(
         3,
@@ -991,6 +1065,43 @@ sub cmdFLBestellung {
     $self->log( 3, getTime() . " [SLNP::Server] > params:" . Dumper($params) );
 
     $res = SLNP::Commands::Bestellung::SLNPFLBestellung( $slnpcmd, $params );
+
+    # mail staff
+    if (   $res->{'req_valid'}
+        && $params->{'BsTyp'} eq 'AFL'
+        && $configuration->{accepted_afl_notice}
+        && C4::Context->preference('ILLDefaultStaffEmail') )
+    {
+
+        my $email     = C4::Context->preference('ILLDefaultStaffEmail');
+        my $pflnummer = $res->{rsp_para}->[0]->{resp_pval};
+
+        my %substitute =
+            ( pflnummer => $pflnummer, bestellid => $params->{BestellId}, portal => $configuration->{'portal_url'} );
+
+        my $letter = C4::Letters::GetPreparedLetter(
+            module                 => 'ill',
+            letter_code            => 'AFL_ORDER_CREATED',
+            message_transport_type => 'email',
+            substitute             => \%substitute,
+        );
+
+        if ($letter) {
+            C4::Letters::EnqueueLetter(
+                {
+                    letter                 => $letter,
+                    message_transport_type => 'email',
+                    to_address             => $email
+                }
+            );
+
+            $self->log(
+                3,
+                getTime() . "[SLNP::Server][Bestellung] AFL notification sent to " . $email . ":"
+            );
+        }
+
+    }
 
     $self->log(
         3,

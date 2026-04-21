@@ -87,7 +87,7 @@
       <ol>
         <li>
           <label for="item_callnumber">[% whole.strings.item_callnumber | html %]:</label>
-          <input type="text" size="50" name="item_callnumber" id="item_callnumber" value="[% whole.value.item.itemcallnumber | html %]" />
+          <input type="text" size="50" name="item_callnumber" id="item_callnumber" value="[% IF whole.value.callnumber %][% whole.value.callnumber | html %][% ELSE %][% whole.value.item.itemcallnumber | html %][% END %]" />
         </li>
 
         <li>
@@ -175,6 +175,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         $('#lending_library').select2();
+
+        [% IF whole.value.selected_lending_library_id %]
+        $('#lending_library').val('[% whole.value.selected_lending_library_id | html %]');
+        $('#lending_library').trigger('change');
+        [% END %]
 
         function Dopop(link) {
             var newin = window.open(link, 'popup', 'width=600,height=400,resizable=1,toolbar=0,scrollbars=1,top');
