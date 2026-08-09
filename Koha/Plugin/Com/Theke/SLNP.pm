@@ -461,6 +461,13 @@ sub check_configuration {
             push @errors, 'extra_fee_debit_type_not_set';
         }
 
+        if ( $configuration->{accepted_afl_notice} ) {
+            push @errors, 'no_ILLDefaultStaffEmail'
+                unless C4::Context->preference('ILLDefaultStaffEmail');
+            push @errors, 'no_AFL_ORDER_CREATED'
+                unless Koha::Notice::Templates->search( { code => 'AFL_ORDER_CREATED' } )->count;
+        }
+
         eval { $configuration = YAML::XS::Load( Encode::encode_utf8( $self->retrieve_data('configuration') ) ); };
         push @errors, "Error parsing YAML configuration ($@)"
             if $@;
